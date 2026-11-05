@@ -566,19 +566,37 @@
   for (let i = 0; i < 7; i++) addFeed(true);
   setInterval(() => addFeed(), 2800);
 
-  /* ---------------- 抽象指数柱状图 ---------------- */
-  const DAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '今天'];
-  $('#bars').innerHTML = DAYS.map((d, i) => {
-    const h = i === 6 ? 96 : randInt(28, 82);
-    return `<div class="bar-col" title="${d} 抽象指数 ${h}%"><i style="height:0" data-h="${h}"></i><span>${d}</span></div>`;
-  }).join('');
-  const barObserver = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-      $$('#bars .bar-col i').forEach((el, i) => setTimeout(() => { el.style.height = el.dataset.h + '%'; }, i * 90));
-      barObserver.disconnect();
-    }
-  }, { threshold: 0.3 });
-  barObserver.observe($('#bars'));
+  /* ---------------- 抽象指数柱状图：按真实日期生成最近 7 天 ---------------- */
+  const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  let gaugeDateKey = '';
+
+  function renderGauge(animate = true) {
+    const now = new Date();
+    const todayIdx = now.getDay();
+    gaugeDateKey = now.toDateString();
+    const dateEl = $('#gaugeDate');
+    if (dateEl) dateEl.textContent = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} · ${WEEK[todayIdx]}`;
+    const days = Array.from({ length: 7 }, (_, i) => WEEK[(todayIdx - 6 + i + 7) % 7]);
+    $('#bars').innerHTML = days.map((d, i) => {
+      const isToday = i === 6;
+      const h = isToday ? 96 : randInt(28, 82);
+      const tip = isToday ? `${d}（今天）` : d;
+      return `<div class="bar-col${isToday ? ' is-today' : ''}" title="${tip} 抽象指数 ${h}%"><i style="height:${animate ? 0 : h}%" data-h="${h}"></i><span>${d}</span></div>`;
+    }).join('');
+    if (!animate) return;
+    const barObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        $$('#bars .bar-col i').forEach((el, i) => setTimeout(() => { el.style.height = el.dataset.h + '%'; }, i * 90));
+        barObserver.disconnect();
+      }
+    }, { threshold: 0.3 });
+    barObserver.observe($('#bars'));
+  }
+  renderGauge();
+  // 跨过零点后按新日期重排标签（不再播放入场动画）
+  setInterval(() => {
+    if (new Date().toDateString() !== gaugeDateKey) renderGauge(false);
+  }, 60000);
 
   /* ---------------- 「全员露出」彩蛋 ---------------- */
   let exposeTimer = null;

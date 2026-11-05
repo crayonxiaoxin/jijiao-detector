@@ -389,7 +389,10 @@ a{color:inherit;text-decoration:none}
   margin-left:auto;flex:none;display:flex;align-items:center;gap:7px;background:var(--red);
   color:#fff;font-family:var(--mono);font-size:12px;font-weight:800;padding:7px 12px;letter-spacing:1px;
 }
-.gauge-box h3{margin:0 0 18px;font-size:17px;letter-spacing:1px}
+.gauge-box h3{margin:0 0 18px;font-size:17px;letter-spacing:1px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.gauge-date{font-size:11px;font-weight:600;letter-spacing:0;color:rgba(255,255,255,.62);font-family:var(--mono)}
+.bar-col.is-today span{color:var(--yellow);font-weight:900}
+.bar-col.is-today i{background:linear-gradient(180deg,#fff6b0,var(--red));border-color:#fff}
 .bars{display:flex;align-items:flex-end;gap:8px;height:140px;padding-bottom:6px;border-bottom:2px solid rgba(255,255,255,.4)}
 .bar-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:6px}
 .bar-col i{display:block;width:100%;background:linear-gradient(180deg,var(--yellow),#e8931a);border:1px solid rgba(0,0,0,.4);transition:height .8s ease;min-height:4px}
