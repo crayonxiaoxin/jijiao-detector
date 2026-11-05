@@ -536,6 +536,91 @@
     }
   });
 
+  /* ---------------- 访客归属地（可选，失败静默回退到随机省份） ----------------
+     Cloudflare Pages：优先读同源 /cdn-cgi/trace，访客 IP 不离开请求链路，零第三方。
+     其他静态托管：浏览器直连免费公共 API，只取省 / 国家，不存储、不上传。
+     想彻底关闭整个功能：把下面的 GEO_ENABLED 改成 false 即可。              */
+  const GEO_ENABLED = true;
+  let visitorRegion = null;
+
+  const SAR = {
+    'hong kong': '中国香港', 'hong kong sar': '中国香港', 'hk': '中国香港',
+    'taiwan': '中国台湾', 'taiwan, province of china': '中国台湾', 'tw': '中国台湾',
+    'macao': '中国澳门', 'macau': '中国澳门', 'mo': '中国澳门'
+  };
+  const CN_REGION = {
+    'beijing': '北京', 'tianjin': '天津', 'shanghai': '上海', 'chongqing': '重庆',
+    'hebei': '河北', 'shanxi': '山西', 'liaoning': '辽宁', 'jilin': '吉林',
+    'heilongjiang': '黑龙江', 'jiangsu': '江苏', 'zhejiang': '浙江', 'anhui': '安徽',
+    'fujian': '福建', 'jiangxi': '江西', 'shandong': '山东', 'henan': '河南',
+    'hubei': '湖北', 'hunan': '湖南', 'guangdong': '广东', 'hainan': '海南',
+    'sichuan': '四川', 'guizhou': '贵州', 'yunnan': '云南', 'shaanxi': '陕西',
+    'gansu': '甘肃', 'qinghai': '青海', 'inner mongolia': '内蒙古',
+    'guangxi': '广西', 'tibet': '西藏', 'xizang': '西藏', 'ningxia': '宁夏',
+    'xinjiang': '新疆'
+  };
+  const COUNTRY_CODE = {
+    'CN': '中国', 'US': '美国', 'JP': '日本', 'KR': '韩国', 'GB': '英国',
+    'DE': '德国', 'FR': '法国', 'CA': '加拿大', 'AU': '澳大利亚', 'NZ': '新西兰',
+    'SG': '新加坡', 'MY': '马来西亚', 'TH': '泰国', 'VN': '越南', 'PH': '菲律宾',
+    'ID': '印度尼西亚', 'IN': '印度', 'RU': '俄罗斯', 'BR': '巴西',
+    'NL': '荷兰', 'IT': '意大利', 'ES': '西班牙', 'AE': '阿联酋', 'ZA': '南非'
+  };
+  const COUNTRY_NAME = {
+    'china': '中国', 'united states': '美国', 'united states of america': '美国',
+    'japan': '日本', 'south korea': '韩国', 'korea, republic of': '韩国',
+    'united kingdom': '英国', 'germany': '德国', 'france': '法国',
+    'canada': '加拿大', 'australia': '澳大利亚', 'new zealand': '新西兰',
+    'singapore': '新加坡', 'malaysia': '马来西亚', 'thailand': '泰国',
+    'vietnam': '越南', 'philippines': '菲律宾', 'indonesia': '印度尼西亚',
+    'india': '印度', 'russia': '俄罗斯', 'brazil': '巴西', 'netherlands': '荷兰',
+    'italy': '意大利', 'spain': '西班牙', 'united arab emirates': '阿联酋',
+    'south africa': '南非'
+  };
+
+  function localizeGeo(d) {
+    const region = String(d.region || d.region_name || '').trim()
+      .replace(/\s+(sheng|province|shi|municipality|autonomous region)$/i, '');
+    const country = String(d.country || d.country_name || '').trim();
+    const code = String(d.country_code || '').toUpperCase();
+    const k = (s) => s.toLowerCase();
+    const sar = SAR[k(region)] || SAR[k(country)] || SAR[k(code)];
+    if (sar) return sar;
+    if (code === 'CN' || k(country) === 'china') return CN_REGION[k(region)] || '中国';
+    return COUNTRY_NAME[k(country)] || COUNTRY_CODE[code] || country || code || null;
+  }
+
+  async function geoFetch(url, wantJson, ms = 2200) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const r = await fetch(url, { signal: ctrl.signal, cache: 'no-store', referrerPolicy: 'no-referrer' });
+      if (!r.ok) return null;
+      return wantJson ? await r.json() : await r.text();
+    } catch (_) { return null; }
+    finally { clearTimeout(timer); }
+  }
+
+  async function detectVisitorRegion() {
+    if (!GEO_ENABLED || !window.fetch) return null;
+    const trace = await geoFetch('/cdn-cgi/trace', false, 1200);
+    const loc = trace && /^loc=([A-Z]{2})$/m.exec(trace);
+    if (loc && loc[1] !== 'XX' && loc[1] !== 'T1') {
+      return { label: SAR[loc[1].toLowerCase()] || COUNTRY_CODE[loc[1]] || loc[1], source: 'Cloudflare 边缘节点' };
+    }
+    const a = await geoFetch('https://ipwho.is/', true);
+    if (a && a.success !== false) {
+      const label = localizeGeo(a);
+      if (label) return { label, source: 'ipwho.is' };
+    }
+    const b = await geoFetch('https://get.geojs.io/v1/ip/geo.json', true);
+    if (b) {
+      const label = localizeGeo(b);
+      if (label) return { label, source: 'GeoJS' };
+    }
+    return null;
+  }
+
   /* ---------------- 实时播报 ---------------- */
   const CITIES = ['广东', '江苏', '浙江', '山东', '四川', '湖南', '河南', '河北', '福建', '安徽', '湖北', '陕西', '北京', '上海', '重庆'];
   const WHOS = ['网友', '同学', '打工人', '路人甲', '程序员', '大学生', '保安大叔', '食堂阿姨', '课代表', '练习生'];
@@ -551,12 +636,19 @@
   ];
   let feedTotal = randInt(8919000, 8919300);
 
-  function addFeed(initial = false) {
+  function addFeed(initial = false, own = false) {
     const li = document.createElement('li');
     const d = new Date(Date.now() - (initial ? randInt(1, 500) * 1000 : 0));
     const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    const text = `${pick(CITIES)} · ${pick(EVENTS)(pick(WHOS), randInt(3, 99))}`;
-    li.innerHTML = `<time>${time}</time><span>${text}</span>`;
+    const isOwn = own && !!visitorRegion;
+    const place = isOwn ? visitorRegion.label : pick(CITIES);
+    const text = isOwn
+      ? `${place} · 检测到本机接入，系统已自动把鸡脚收回去 0.5 秒`
+      : `${place} · ${pick(EVENTS)(pick(WHOS), randInt(3, 99))}`;
+    if (isOwn) li.className = 'is-you';
+    const t = document.createElement('time'); t.textContent = time;
+    const s = document.createElement('span'); s.textContent = text;
+    li.append(t, s);
     const list = $('#feedList');
     list.prepend(li);
     while (list.children.length > 9) list.lastElementChild.remove();
@@ -565,6 +657,19 @@
   }
   for (let i = 0; i < 7; i++) addFeed(true);
   setInterval(() => addFeed(), 2800);
+
+  /* 异步探测：不阻塞渲染，失败就当没发生过，播报继续用随机省份 */
+  detectVisitorRegion().then((hit) => {
+    if (!hit) return;
+    visitorRegion = hit;
+    const badge = $('#geoBadge');
+    if (badge) {
+      badge.textContent = `📍 本次访问：${hit.label}`;
+      badge.title = `数据来源：${hit.source} · 仅在本机显示，不存储、不上传`;
+      badge.hidden = false;
+    }
+    addFeed(false, true);
+  }).catch(() => { /* 静默降级 */ });
 
   /* ---------------- 抽象指数柱状图：按真实日期生成最近 7 天 ---------------- */
   const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
