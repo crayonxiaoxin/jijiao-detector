@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小黑子露出鸡脚了 | 小黑子鉴定中心（自封）</title>
+<meta name="description" content="全国首个（自封）AI 鸡脚露出自动鉴定系统。纯娱乐整活，鉴定结果由随机数权威出具。">
+<meta name="theme-color" content="#123a8c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%B6%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ 可复用 SVG：鸡脚 / 印章 / 图标 ============ -->
+<svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="ico-foot" viewBox="0 0 220 300">
+      <g stroke="#8a4b12" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+        <!-- 腿 -->
+        <path d="M86 300 L86 168 Q86 150 104 150 L116 150 Q134 150 134 168 L134 300 Z" fill="#f2a63b"/>
+        <!-- 脚掌 -->
+        <ellipse cx="110" cy="146" rx="52" ry="38" fill="#ffc45c"/>
+        <!-- 三根脚趾（深色底层做出描边感） -->
+        <path d="M78 132 L34 74 M110 122 L110 44 M142 132 L186 74" stroke="#8a4b12" stroke-width="36" fill="none"/>
+        <path d="M78 132 L34 74 M110 122 L110 44 M142 132 L186 74" stroke="#ffc45c" stroke-width="26" fill="none"/>
+        <!-- 后趾 -->
+        <path d="M134 160 L176 186" stroke="#8a4b12" stroke-width="26" fill="none"/>
+        <path d="M134 160 L176 186" stroke="#f2a63b" stroke-width="18" fill="none"/>
+        <!-- 爪尖 -->
+        <path d="M34 74 L18 52 L48 60 Z" fill="#fff8e6"/>
+        <path d="M110 44 L98 20 L122 20 Z" fill="#fff8e6"/>
+        <path d="M186 74 L202 52 L172 60 Z" fill="#fff8e6"/>
+        <path d="M176 186 L194 194 L180 172 Z" fill="#fff8e6"/>
+        <!-- 鳞片纹 -->
+        <path d="M89 186 H131 M89 208 H131 M89 230 H131 M89 252 H131 M89 274 H131" stroke="#d98a20" stroke-width="5" fill="none"/>
+      </g>
+    </symbol>
+    <symbol id="ico-basketball" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="46" fill="#e9722a" stroke="#7a3210" stroke-width="4"/>
+      <path d="M50 4 V96 M4 50 H96 M14 14 Q50 50 86 86 M86 14 Q50 50 14 86" fill="none" stroke="#7a3210" stroke-width="4"/>
+    </symbol>
+    <!-- 吉祥物降级版（原创 SVG）：仅当 assets/chick.png 加载失败时显示 -->
+    <symbol id="ico-chick" viewBox="0 0 240 320">
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="120" cy="303" rx="74" ry="11" fill="rgba(11,35,96,.22)" stroke="none"/>
+        <!-- 尾羽 -->
+        <path d="M66 198 Q36 192 34 168 Q46 178 60 180 Q44 162 52 146 Q66 164 78 182 Z" fill="#ffcf33" stroke="#8a5a10" stroke-width="4"/>
+        <!-- 左翅膀 -->
+        <path d="M68 188 Q42 182 44 158 Q56 170 76 172 Z" fill="#ffcf33" stroke="#8a5a10" stroke-width="4"/>
+        <!-- 身体 -->
+        <ellipse cx="118" cy="202" rx="60" ry="64" fill="#ffdc55" stroke="#8a5a10" stroke-width="5"/>
+        <!-- 背带 -->
+        <path d="M88 158 L100 212 M150 158 L138 212" fill="none" stroke="#2f6fd0" stroke-width="13"/>
+        <!-- 背带裤 -->
+        <path d="M70 206 Q118 194 166 206 L170 258 Q118 274 66 258 Z" fill="#2f6fd0" stroke="#173f86" stroke-width="5"/>
+        <circle cx="100" cy="212" r="6" fill="#ffd400" stroke="#173f86" stroke-width="2"/>
+        <circle cx="138" cy="212" r="6" fill="#ffd400" stroke="#173f86" stroke-width="2"/>
+        <path d="M118 228 V252 M84 226 Q92 234 100 226 M136 226 Q144 234 152 226" fill="none" stroke="#173f86" stroke-width="3"/>
+        <!-- 鸡脚 -->
+        <g fill="none" stroke="#f2a63b" stroke-width="9">
+          <path d="M96 260 V280 M142 260 V280"/>
+        </g>
+        <g fill="none" stroke="#f2a63b" stroke-width="7">
+          <path d="M96 280 L80 292 M96 280 L96 296 M96 280 L112 292 M142 280 L126 292 M142 280 L142 296 M142 280 L158 292"/>
+        </g>
+        <g fill="none" stroke="#c9821b" stroke-width="2">
+          <path d="M80 292 L76 296 M96 296 L96 300 M112 292 L116 296 M126 292 L122 296 M142 296 L142 300 M158 292 L162 296"/>
+        </g>
+        <!-- 篮球 -->
+        <circle cx="184" cy="230" r="32" fill="#e9722a" stroke="#7a3210" stroke-width="4"/>
+        <path d="M184 199 V261 M153 230 H215 M163 209 Q184 230 205 251 M205 209 Q184 230 163 251" fill="none" stroke="#7a3210" stroke-width="3"/>
+        <!-- 搭在球上的右翅膀 -->
+        <path d="M162 190 Q178 186 182 202 Q172 208 164 200 Z" fill="#ffcf33" stroke="#8a5a10" stroke-width="4"/>
+        <!-- 头 -->
+        <circle cx="120" cy="106" r="58" fill="#ffe277" stroke="#8a5a10" stroke-width="5"/>
+        <!-- 中分发型 -->
+        <path d="M64 106 C56 48 86 34 117 40 L119 76 Q104 68 93 84 Q80 88 64 106 Z" fill="#20202c" stroke="#0e0e16" stroke-width="3"/>
+        <path d="M176 106 C184 48 154 34 123 40 L121 76 Q136 68 147 84 Q160 88 176 106 Z" fill="#20202c" stroke="#0e0e16" stroke-width="3"/>
+        <path d="M74 76 Q88 52 108 48 M166 76 Q152 52 132 48" fill="none" stroke="#4a4a5c" stroke-width="3"/>
+        <path d="M120 44 V70" fill="none" stroke="#4a4a5c" stroke-width="3"/>
+        <!-- 五官 -->
+        <ellipse cx="99" cy="116" rx="6.5" ry="9" fill="#1b1b1b" stroke="none"/>
+        <ellipse cx="141" cy="116" rx="6.5" ry="9" fill="#1b1b1b" stroke="none"/>
+        <circle cx="101" cy="113" r="2.3" fill="#fff" stroke="none"/>
+        <circle cx="143" cy="113" r="2.3" fill="#fff" stroke="none"/>
+        <ellipse cx="82" cy="132" rx="10" ry="6" fill="#ff9d8a" opacity=".65" stroke="none"/>
+        <ellipse cx="158" cy="132" rx="10" ry="6" fill="#ff9d8a" opacity=".65" stroke="none"/>
+        <path d="M110 130 L130 130 L120 145 Z" fill="#f5921e" stroke="#a85c08" stroke-width="2"/>
+        <path d="M114 138 H126" fill="none" stroke="#a85c08" stroke-width="2"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ============ 顶部滚动公告 ============ -->
+<div class="ticker" aria-label="滚动通知">
+  <span class="ticker-tag">紧急通知</span>
+  <div class="ticker-window"><div class="ticker-track">
+    <span>近期鸡脚露出事件激增 114.5%，请广大 ikun 自觉收好脚</span><b>◆</b>
+    <span>本系统由「唱跳 rap 篮球研究所（并不存在）」提供技术支持</span><b>◆</b>
+    <span>今日已成功拦截 8,919,141 次露出未遂</span><b>◆</b>
+    <span>请勿在公共场合练习铁山靠，违者当场露出</span><b>◆</b>
+    <span>本站鉴定结果均由随机数生成器权威出具，概不负责</span><b>◆</b>
+    <span>近期鸡脚露出事件激增 114.5%，请广大 ikun 自觉收好脚</span><b>◆</b>
+    <span>本系统由「唱跳 rap 篮球研究所（并不存在）」提供技术支持</span><b>◆</b>
+    <span>今日已成功拦截 8,919,141 次露出未遂</span><b>◆</b>
+    <span>请勿在公共场合练习铁山靠，违者当场露出</span><b>◆</b>
+    <span>本站鉴定结果均由随机数生成器权威出具，概不负责</span><b>◆</b>
+  </div></div>
+</div>
+
+<!-- ============ 导航 ============ -->
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="返回顶部">
+    <span class="brand-seal" aria-hidden="true"><span>鉴</span></span>
+    <span class="brand-text">
+      <strong>小黑子鉴定中心</strong>
+      <small>UNOFFICIAL CHICKEN FOOT EXPOSURE LAB · 自封</small>
+    </span>
+  </a>
+  <nav class="topbar-right">
+    <span class="clock" id="clock">--:--:--</span>
+    <span class="online"><i></i>在线 <b id="onlineNum">191,981</b> 人</span>
+    <button class="ghost-btn" id="soundBtn" type="button" aria-pressed="true" title="开关提示音（不影响 BGM）">🔊 提示音</button>
+    <button class="ghost-btn" id="adminBtn" type="button">管理员入口</button>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="stamp-sticker" aria-hidden="true"><span>合格<br>ikun<br><em>存疑</em></span></div>
+
+    <div class="hero-inner">
+      <p class="kicker">🦶 国家级（并不）重点整活项目<span class="kicker-code"> · 编号 IKUN-2026-114514</span></p>
+      <h1 class="glitch" data-text="小黑子露出鸡脚了">小黑子<span>露出鸡脚</span>了</h1>
+      <p class="hero-sub">全国首个 · 基于 2.5 年练习生数据训练 · AI 鸡脚露出自动鉴定系统 <b>v2.5</b></p>
+      <p class="hero-desc">你以为藏得很好？系统早已通过中分发型、背带裤褶皱与铁山靠频率，锁定了你的位置。</p>
+
+      <div class="hero-actions">
+        <a class="btn btn-red" href="#detector">🔍 立即接受鉴定 <span>→</span></a>
+        <button class="btn btn-yellow" id="exposeBtn" type="button">🦶 一键露出鸡脚</button>
+      </div>
+
+      <div class="stats" aria-label="系统数据">
+        <div class="stat"><span class="stat-num" data-target="1145141">0</span><span class="stat-unit">只</span><p>今日露出的鸡脚</p></div>
+        <div class="stat"><span class="stat-num" data-target="8919141">0</span><span class="stat-unit">人</span><p>累计被鉴定</p></div>
+        <div class="stat"><span class="stat-num" data-target="99">0</span><span class="stat-unit">.8%</span><p>鉴定准确率（自称）</p></div>
+      </div>
+    </div>
+
+    <!-- 偷偷探出来的鸡脚 -->
+    <div class="peek" id="peek" aria-hidden="true">
+      <span class="peek-bubble">别看我</span>
+      <svg class="peek-foot"><use href="#ico-foot"/></svg>
+    </div>
+
+    <!-- 吉祥物：中分头 · 高领背带 · 篮球 · 小黄鸡（本地 PNG，加载失败自动回退内置 SVG） -->
+    <button class="hero-mascot" id="mascot" type="button" aria-label="戳一下小黄鸡" title="戳一下试试">
+      <img class="chick-photo" src="assets/chick.png" alt="" draggable="false">
+      <svg class="chick-fallback" viewBox="0 0 240 320" aria-hidden="true"><use href="#ico-chick"/></svg>
+      <span class="mascot-tag">嫌疑人画像 №114514</span>
+    </button>
+  </section>
+
+  <!-- ============ 鉴定问卷 ============ -->
+  <section class="section paper-section" id="detector">
+    <div class="section-head">
+      <span class="sec-no">01</span>
+      <div><h2>第一部分：思想政治与背带裤审查</h2><p>请如实作答。系统正在监听你的犹豫时间。</p></div>
+    </div>
+
+    <form class="quiz" id="quizForm" novalidate>
+      <div class="quiz-note"><b>填表须知：</b>本表共 4 题，单选。请勿试图撒谎，鸡脚会替你回答。</div>
+
+      <label class="name-field">
+        <span>被鉴定人昵称</span>
+        <input type="text" id="nickname" maxlength="16" placeholder="路过的 ikun" autocomplete="off">
+        <small>留空将自动分配编号</small>
+      </label>
+
+      <fieldset class="q" data-q="0">
+        <legend><b>Q1.</b> 你现在的发型是？</legend>
+        <div class="opts">
+          <label><input type="radio" name="q0" value="0"><span>中分，两边梳得整整齐齐</span></label>
+          <label><input type="radio" name="q0" value="1"><span>大背头，很有精神</span></label>
+          <label><input type="radio" name="q0" value="2"><span>随便，帽子一戴谁都不爱</span></label>
+          <label><input type="radio" name="q0" value="3"><span>我没有头发，谢谢</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-q="1">
+        <legend><b>Q2.</b> 看到一个篮球，你的第一反应是？</legend>
+        <div class="opts">
+          <label><input type="radio" name="q1" value="0"><span>投篮，这很正常</span></label>
+          <label><input type="radio" name="q1" value="1"><span>运球，然后唱、跳、rap</span></label>
+          <label><input type="radio" name="q1" value="2"><span>一个铁山靠</span></label>
+          <label><input type="radio" name="q1" value="3"><span>绕着走，怕它突然响起 BGM</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-q="2">
+        <legend><b>Q3.</b> 请补全：鸡你太 ______</legend>
+        <div class="opts">
+          <label><input type="radio" name="q2" value="0"><span>美</span></label>
+          <label><input type="radio" name="q2" value="1"><span>好</span></label>
+          <label><input type="radio" name="q2" value="2"><span>妙</span></label>
+          <label><input type="radio" name="q2" value="3"><span>我不知道，真的不知道（心虚）</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-q="3">
+        <legend><b>Q4.</b> 你的练习时长是？</legend>
+        <div class="opts">
+          <label><input type="radio" name="q3" value="0"><span>两年半</span></label>
+          <label><input type="radio" name="q3" value="1"><span>整整三年，一天不多</span></label>
+          <label><input type="radio" name="q3" value="2"><span>没练过，我是路人</span></label>
+          <label><input type="radio" name="q3" value="3"><span>什么叫练习？（开始紧张）</span></label>
+        </div>
+      </fieldset>
+
+      <p class="promise"><label><input type="checkbox" id="promise" checked><span>本人承诺：以上信息如有虚假，愿承担鸡脚当场外露的一切后果。</span></label></p>
+      <button class="btn btn-red btn-block" type="submit">🚨 提交并启动全身扫描</button>
+      <p class="fineprint">* 未作答的题目将由系统代为脑补，脑补结果一律按「是」处理。</p>
+    </form>
+  </section>
+
+  <!-- ============ 扫描终端 ============ -->
+  <section class="section scan-section" id="scanSection" hidden>
+    <div class="terminal">
+      <div class="terminal-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><b>C:\JIJIAO&gt; system_scan.exe --deep --no-mercy</b></div>
+      <div class="terminal-body">
+        <div class="term-log" id="termLog" role="log" aria-live="polite"></div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span id="progressText">正在初始化随机数生成器…</span><b id="progressPct">0%</b></div>
+          <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 鉴定结果 ============ -->
+  <section class="section result-section" id="resultSection" hidden>
+    <div class="certificate" id="certificate">
+      <div class="cert-corner tl"></div><div class="cert-corner tr"></div>
+      <div class="cert-corner bl"></div><div class="cert-corner br"></div>
+      <p class="cert-no">鉴定报告 № <span id="certNo">IKUN-2026-XXXX</span></p>
+      <h2>小黑子身份鉴定报告</h2>
+      <p class="cert-sub">本证书由「小黑子鉴定中心（自封）」郑重颁发</p>
+
+      <div class="verdict">
+        <p>被鉴定人：<b id="resName">路过的 ikun</b></p>
+        <div class="verdict-big" id="verdictBig">小黑子，实锤了</div>
+        <p class="verdict-en">CHICKEN FOOT FULLY EXPOSED · CASE CLOSED</p>
+      </div>
+
+      <div class="foot-rise" aria-hidden="true">
+        <div class="suspect">
+          <img class="chick-photo" src="assets/chick.png" alt="" draggable="false">
+          <svg class="chick-fallback" viewBox="0 0 240 320"><use href="#ico-chick"/></svg>
+          <span>嫌疑人快照</span>
+        </div>
+        <svg><use href="#ico-foot"/></svg>
+        <span class="foot-label">鸡脚已露出</span>
+      </div>
+
+      <div class="meters" id="meters"></div>
+
+      <div class="comment">
+        <span>专家评语</span>
+        <p id="resComment">正在调取专家意见…</p>
+      </div>
+
+      <div class="red-seal" aria-hidden="true"><span>鉴定<br>专用章</span><i>并不具备法律效力</i></div>
+
+      <div class="cert-actions">
+        <button class="btn btn-red" id="copyBtn" type="button">📋 复制鉴定结果</button>
+        <button class="btn btn-blue" id="downloadBtn" type="button">🖼️ 下载鉴定证书</button>
+        <button class="btn btn-ghost" id="retryBtn" type="button">🔄 再测一次</button>
+      </div>
+      <p class="fineprint">* 本结果由 Math.random() 权威出具，与本人实际行为无任何关系。</p>
+    </div>
+  </section>
+
+  <!-- ============ 实时播报 ============ -->
+  <section class="section feed-section">
+    <div class="section-head light">
+      <span class="sec-no">02</span>
+      <div><h2>全网鸡脚露出实时播报</h2><p>7×24 小时监控中 · 数据来源：我编的</p></div>
+      <span class="live-badge"><i></i>LIVE</span>
+    </div>
+    <div class="feed-grid">
+      <div class="feed-box">
+        <div class="feed-head"><b>📡 露出事件流</b><span id="feedCount">已记录 0 条</span></div>
+        <ul class="feed-list" id="feedList" aria-live="off"></ul>
+      </div>
+      <div class="gauge-box">
+        <h3>今日抽象指数</h3>
+        <div class="bars" id="bars"></div>
+        <div class="gauge-foot"><span>结论</span><strong>全体露出，无一幸免</strong></div>
+        <button class="btn btn-yellow btn-block" id="exposeBtn2" type="button">🦶 我也要露出</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 词条百科 ============ -->
+  <section class="section wiki-section">
+    <div class="section-head">
+      <span class="sec-no">03</span>
+      <div><h2>《鸡脚大辞典》（节选）</h2><p>点击展开，展开后可能会露出更多</p></div>
+    </div>
+    <div class="wiki-list">
+      <details><summary>🦶 鸡脚 <em>名词</em></summary><p>原指禽类的足部。在网络语境中，引申为「藏不住的真实身份」。当一个人声称自己只是路人，却能精准接唱第二段时，我们就说：他的鸡脚露出来了。常见伴随症状：嘴上说不知道，脚趾已经开始打节拍。</p></details>
+      <details><summary>🖤 小黑子 <em>名词</em></summary><p>一种自称「我只是路过」的高危群体。特征包括：对某段旋律的条件反射、对背带裤的异常熟悉、以及在否认时语速明显加快。本中心对他们没有任何意见，因为我们自己也是。</p></details>
+      <details><summary>🏀 唱、跳、rap、篮球 <em>四字词组</em></summary><p>一套完整的自我暴露流程。据不完全统计，能完整念出这七个字而不笑场的人，占比 0.00%。</p></details>
+      <details><summary>⏱️ 两年半 <em>时间单位</em></summary><p>互联网通用时间单位，约等于「说不清但大家都懂」。1 两年半 = 2.5 年 = 30 个月 = 无限循环的练习生生涯。</p></details>
+      <details><summary>🌀 铁山靠 <em>动词</em></summary><p>一种在听到特定 BGM 时不由自主产生的位移行为。医学上暂无解释，本中心建议：不要抵抗，顺着来。</p></details>
+      <details><summary>🐤 中分头篮球小黄鸡 <em>专有名词</em></summary><p>本中心荣誉吉祥物，标准配置：蓬松中分、黑色高领衫、银色背带、肩后一颗橙色篮球，以及藏得不太好的鸡脚。形象由本站按梗图风格原创重绘，存为本地 PNG，另内置一份 SVG 作为加载失败时的降级，全程无外部素材请求。常见出没位置：首屏右侧（可戳）、鉴定报告的「嫌疑人快照」栏、以及下载的 PNG 证书。注意：它会跟着 BGM 点头，属正常现象，不必报修。</p></details>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div><strong>🦶 小黑子鉴定中心（自封）</strong><p>成立于刚才 · 员工 2.5 人 · 从不打烊</p></div>
+    <p class="disclaimer"><b>免责声明：</b>本站为纯娱乐整活作品，不隶属于任何机构，不针对任何真实个人，不含任何真实数据采集与上传。所有鉴定结果、播报与数据均为随机生成，请勿当真。玩梗而已，开心就好。</p>
+  </div>
+</footer>
+
+<!-- ============ 悬浮元素 ============ -->
+<div class="ball" id="ball" aria-hidden="true"><svg><use href="#ico-basketball"/></svg></div>
+<button class="ball-toggle" id="ballToggle" type="button" title="关闭跟随篮球">🏀 关闭篮球</button>
+
+<!-- ============ BGM 播放坞 ============ -->
+<div class="bgm-dock" id="bgmDock">
+  <button class="bgm-disc" id="bgmToggle" type="button" aria-label="播放或暂停背景音乐" aria-pressed="false" title="播放 / 暂停 BGM">
+    <span class="disc-label">🎵</span>
+  </button>
+  <div class="bgm-info">
+    <strong>鸡你太美 <span>· BGM</span></strong>
+    <small id="bgmState">点一下，有内味了</small>
+    <input type="range" id="bgmVolume" min="0" max="100" value="35" aria-label="背景音乐音量">
+  </div>
+  <audio id="bgm" src="assets/jinitaimei.mp3" loop preload="auto"></audio>
+</div>
+
+<!-- ============ 全屏「全员露出」彩蛋 ============ -->
+<div class="expose-overlay" id="exposeOverlay" hidden>
+  <div class="expose-feet" aria-hidden="true">
+    <svg style="--d:0s;--x:6vw;--r:-18deg"><use href="#ico-foot"/></svg>
+    <svg style="--d:.1s;--x:24vw;--r:12deg"><use href="#ico-foot"/></svg>
+    <svg style="--d:.2s;--x:42vw;--r:-8deg"><use href="#ico-foot"/></svg>
+    <svg style="--d:.3s;--x:60vw;--r:16deg"><use href="#ico-foot"/></svg>
+    <svg style="--d:.15s;--x:78vw;--r:-14deg"><use href="#ico-foot"/></svg>
+    <svg style="--d:.25s;--x:88vw;--r:20deg"><use href="#ico-foot"/></svg>
+  </div>
+  <div class="expose-msg">
+    <p>⚠️ 系统检测到大规模暴露事件 ⚠️</p>
+    <h2>全 员 露 出</h2>
+    <span>鸡脚已全部外露，无法撤回</span>
+    <button class="btn btn-yellow" id="closeExpose" type="button">把脚收回去（3）</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
